@@ -1,20 +1,27 @@
-import { User } from './entities/User';
 import { AppDataSource } from './data-source';
+import { Task } from './entities/Task';
 
 async function main() {
   await AppDataSource.initialize();
 
-  const info = await AppDataSource.query(
-    'SELECT current_database() AS db, version() AS version',
-  );
-  console.log(info[0]);
+  for (const meta of AppDataSource.entityMetadatas) {
+    console.log(`\n${meta.name} -> table "${meta.tableName}"`);
 
-  const meta = AppDataSource.getMetadata(User);
-  console.log('table', meta.tableName);
+    for (const column of meta.columns) {
+      console.log(`  column ${column.propertyName} -> ${column.databaseName}`);
+    }
 
-  for (const column of meta.columns) {
-    console.log(column.propertyName, '->', column.databaseName);
+    for (const relation of meta.relations) {
+      const target = relation.inverseEntityMetadata.name;
+      console.log(
+        `  relation ${relation.propertyName}: ${relation.relationType} ${target}`,
+      );
+    }
   }
+
+  const status =
+    AppDataSource.getMetadata(Task).findColumnWithPropertyName('status');
+  console.log('\nstatus enum:', status?.enum, 'type name:', status?.enumName);
 
   await AppDataSource.destroy();
 }

@@ -2,6 +2,9 @@ import 'reflect-metadata';
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { User } from './entities/User';
+import { Project } from './entities/Project';
+import { Task } from './entities/Task';
+import { Tag } from './entities/Tag';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -20,6 +23,6 @@ export const AppDataSource = new DataSource({
   database: requireEnv('DB_NAME'),
   synchronize: false,
   logging: ['query', 'error'],
-  entities: [User],
+  entities: [User, Project, Tag, Task],
   migrations: [],
 });
